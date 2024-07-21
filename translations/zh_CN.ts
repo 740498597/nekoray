@@ -12,16 +12,8 @@
         <translation>启用</translation>
     </message>
     <message>
-        <source>HTTP Listen Port</source>
-        <translation>HTTP 监听端口</translation>
-    </message>
-    <message>
         <source>Listen Address</source>
         <translation>监听地址</translation>
-    </message>
-    <message>
-        <source>Socks Listen Port</source>
-        <translation>Socks 监听端口</translation>
     </message>
     <message>
         <source>concurrency</source>
@@ -70,14 +62,6 @@
     <message>
         <source>Custom Inbound</source>
         <translation>自定义入站</translation>
-    </message>
-    <message>
-        <source>Asset Location</source>
-        <translation>资源文件路径</translation>
-    </message>
-    <message>
-        <source>Default: dir of &quot;nekoray&quot;</source>
-        <translation>默认值：和 nekoray 同路径</translation>
     </message>
     <message>
         <source>Concurrent</source>
@@ -204,18 +188,6 @@
         <translation>覆盖底层 DNS</translation>
     </message>
     <message>
-        <source>It is recommended to leave it blank, but it sometimes does not work, at this time you can set this option.
-For NekoRay, this rewrites the underlying(localhost) DNS in Tun Mode.
-For NekoBox, this rewrites the underlying(localhost) DNS in Tun Mode, normal mode, and also URL Test.</source>
-        <translation>建议留空，但有时会出现问题，这时可以设置这个选项。
-对于 NekoRay 来说，在 Tun 模式下会重写 underlying(localhost) DNS。
-对于 NekoBox 来说，在 Tun 模式、正常模式和 URL 测试中会重写 underlying(localhost) DNS。</translation>
-    </message>
-    <message>
-        <source>If you Tun Mode is not working, try to change this option.</source>
-        <translation>如果您的 Tun 模式有问题，请尝试更改此选项。</translation>
-    </message>
-    <message>
         <source>Default On</source>
         <translation>默认开启</translation>
     </message>
@@ -242,6 +214,10 @@ For NekoBox, this rewrites the underlying(localhost) DNS in Tun Mode, normal mod
     <message>
         <source>Interval (minute, invalid if less than 30)</source>
         <translation>时间间隔（分钟，少于 30 分钟无效）</translation>
+    </message>
+    <message>
+        <source>Mixed (SOCKS+HTTP) Listen Port</source>
+        <translation>Mixed (SOCKS+HTTP) 监听端口</translation>
     </message>
 </context>
 <context>
@@ -878,14 +854,6 @@ This needs to be run NekoBox with administrator privileges.</source>
         <translation>证书</translation>
     </message>
     <message>
-        <source>Auth Type</source>
-        <translation>认证类型</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation>协议</translation>
-    </message>
-    <message>
         <source>Download (Mbps)</source>
         <translation>下载速度 (Mbps)</translation>
     </message>
@@ -916,10 +884,6 @@ This needs to be run NekoBox with administrator privileges.</source>
     <message>
         <source>SNI</source>
         <translation>SNI</translation>
-    </message>
-    <message>
-        <source>Auth Payload</source>
-        <translation>认证有效载荷</translation>
     </message>
     <message>
         <source>Generate UUID</source>
@@ -1211,10 +1175,6 @@ This needs to be run NekoBox with administrator privileges.</source>
         <translation>导入了 %1 个配置</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>无</translation>
-    </message>
-    <message>
         <source>Unavailable</source>
         <translation>不可用</translation>
     </message>
@@ -1241,10 +1201,6 @@ This needs to be run NekoBox with administrator privileges.</source>
     <message>
         <source>Testing</source>
         <translation>正在测试</translation>
-    </message>
-    <message>
-        <source>Http inbound is not enabled, can&apos;t set system proxy.</source>
-        <translation>HTTP 入站未启用，无法设置系统代理。</translation>
     </message>
     <message>
         <source>Update</source>
@@ -1315,10 +1271,6 @@ End: %2</source>
     <message>
         <source>Remove Unavailable</source>
         <translation>删除不可用的配置</translation>
-    </message>
-    <message>
-        <source>Settings</source>
-        <translation>设置</translation>
     </message>
     <message>
         <source>New profile</source>

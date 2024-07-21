@@ -24,14 +24,6 @@
         <translation>Изменить</translation>
     </message>
     <message>
-        <source>Socks Listen Port</source>
-        <translation>Адрес входящих SOCKS</translation>
-    </message>
-    <message>
-        <source>HTTP Listen Port</source>
-        <translation>Адрес входящих HTTP</translation>
-    </message>
-    <message>
         <source>Enable</source>
         <translation>Вкл</translation>
     </message>
@@ -114,14 +106,6 @@
     <message>
         <source>Core</source>
         <translation>Ядро</translation>
-    </message>
-    <message>
-        <source>Asset Location</source>
-        <translation>Расположение файлов</translation>
-    </message>
-    <message>
-        <source>Default: dir of &quot;nekoray&quot;</source>
-        <translation>По умолчанию: текущая папка nekoray</translation>
     </message>
     <message>
         <source>Select</source>
@@ -212,18 +196,6 @@
         <translation>Переопределить нижестоящий DNS</translation>
     </message>
     <message>
-        <source>It is recommended to leave it blank, but it sometimes does not work, at this time you can set this option.
-For NekoRay, this rewrites the underlying(localhost) DNS in Tun Mode.
-For NekoBox, this rewrites the underlying(localhost) DNS in Tun Mode, normal mode, and also URL Test.</source>
-        <translation>Рекомендуется оставить параметр пустым, но иногда это не срабатывает как надо, и в таком случае можно использовать эту опцию.
-Для  NekoRay  это переопределяет нижестоящий (localhost) DNS в  Tun режиме.
-Для  NekoBox  это переопределяет нижестоящий (localhost) DNS в  Tun режиме, нормальном режиме, а также при URL тесте.</translation>
-    </message>
-    <message>
-        <source>If you Tun Mode is not working, try to change this option.</source>
-        <translation>Если TUN-режим не работает, попробуйте изменить эту опцию.</translation>
-    </message>
-    <message>
         <source>Timeout (s)</source>
         <translation>Таймаут (с)</translation>
     </message>
@@ -242,6 +214,10 @@ For NekoBox, this rewrites the underlying(localhost) DNS in Tun Mode, normal mod
     <message>
         <source>Old Share Link Format</source>
         <translation>Поделиться ссылкой в старом формате</translation>
+    </message>
+    <message>
+        <source>Mixed (SOCKS+HTTP) Listen Port</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -873,14 +849,6 @@ https://matsuridayo.github.io/n-configuration/#vpn-tun</translation>
 <context>
     <name>EditQUIC</name>
     <message>
-        <source>Auth Type</source>
-        <translation>Тип авторизации</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation>Протокол</translation>
-    </message>
-    <message>
         <source>Download (Mbps)</source>
         <translation>Скорость приема (Mbps)</translation>
     </message>
@@ -915,10 +883,6 @@ https://matsuridayo.github.io/n-configuration/#vpn-tun</translation>
     <message>
         <source>SNI</source>
         <translation>SNI</translation>
-    </message>
-    <message>
-        <source>Auth Payload</source>
-        <translation>Полезная нагрузка в режиме авторизации</translation>
     </message>
     <message>
         <source>Disable SNI</source>
@@ -1395,14 +1359,6 @@ https://matsuridayo.github.io/n-configuration/#vpn-tun</translation>
         <translation>Импортирован(ы) %1 профиль(ей)</translation>
     </message>
     <message>
-        <source>Http inbound is not enabled, can&apos;t set system proxy.</source>
-        <translation>HTTP inbound не включен в настройках, невозможно установить системный прокси.</translation>
-    </message>
-    <message>
-        <source>Settings</source>
-        <translation>Настройки</translation>
-    </message>
-    <message>
         <source>Please run NekoBox as admin</source>
         <translation>Пожалуйста, запустите NekoBox с правами администратора</translation>
     </message>
@@ -1413,10 +1369,6 @@ https://matsuridayo.github.io/n-configuration/#vpn-tun</translation>
     <message>
         <source>Not Running</source>
         <translation>Не запущен</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Нет</translation>
     </message>
     <message>
         <source>Select</source>
