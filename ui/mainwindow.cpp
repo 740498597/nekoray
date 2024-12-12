@@ -21,7 +21,6 @@
 #include "3rdparty/qrcodegen.hpp"
 #include "3rdparty/VT100Parser.hpp"
 #include "3rdparty/qv2ray/v2/components/proxy/QvProxyConfigurator.hpp"
-#include "3rdparty/qv2ray/v2/ui/LogHighlighter.hpp"
 
 #ifndef NKR_NO_ZXING
 #include "3rdparty/ZxingQtReader.hpp"
@@ -91,18 +90,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         }
     }
 
-    // software_name
-    if (IS_NEKO_BOX) {
-        software_name = "NekoBox";
-        software_core_name = "sing-box";
-        // replace default values
-        if (NekoGui::dataStore->log_level == "warning") NekoGui::dataStore->log_level = "info";
-        if (NekoGui::dataStore->mux_protocol.isEmpty()) NekoGui::dataStore->mux_protocol = "h2mux";
-        //
-        if (QDir("dashboard").count() == 0) {
-            QDir().mkdir("dashboard");
-            QFile::copy(":/neko/dashboard-notice.html", "dashboard/index.html");
-        }
+    if (QDir("dashboard").count() == 0) {
+        QDir().mkdir("dashboard");
+        QFile::copy(":/neko/dashboard-notice.html", "dashboard/index.html");
     }
 
     // top bar
@@ -111,12 +101,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->toolButton_server->setMenu(ui->menu_server);
     ui->menubar->setVisible(false);
     connect(ui->toolButton_document, &QToolButton::clicked, this, [=] { QDesktopServices::openUrl(QUrl("https://matsuridayo.github.io/")); });
-    connect(ui->toolButton_ads, &QToolButton::clicked, this, [=] { QDesktopServices::openUrl(QUrl("https://matsuricom.pages.dev/")); });
+    connect(ui->toolButton_ads, &QToolButton::clicked, this, [=] { QDesktopServices::openUrl(QUrl("https://neko-box.pages.dev/喵")); });
     connect(ui->toolButton_update, &QToolButton::clicked, this, [=] { runOnNewThread([=] { CheckUpdate(); }); });
+    connect(ui->toolButton_url_test, &QToolButton::clicked, this, [=] { speedtest_current_group(1, true); });
 
     // Setup log UI
     ui->splitter->restoreState(DecodeB64IfValid(NekoGui::dataStore->splitter_state));
-    new SyntaxHighlighter(false, qvLogDocument);
     qvLogDocument->setUndoRedoEnabled(false);
     ui->masterLogBrowser->setUndoRedoEnabled(false);
     ui->masterLogBrowser->setDocument(qvLogDocument);
@@ -344,10 +334,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         neko_set_spmode_vpn(false);
     });
     connect(ui->menu_qr, &QAction::triggered, this, [=]() { display_qr_link(false); });
-    connect(ui->menu_tcp_ping, &QAction::triggered, this, [=]() { speedtest_current_group(0); });
-    connect(ui->menu_url_test, &QAction::triggered, this, [=]() { speedtest_current_group(1); });
-    connect(ui->menu_full_test, &QAction::triggered, this, [=]() { speedtest_current_group(2); });
-    connect(ui->menu_stop_testing, &QAction::triggered, this, [=]() { speedtest_current_group(114514); });
+    connect(ui->menu_tcp_ping, &QAction::triggered, this, [=]() { speedtest_current_group(0, false); });
+    connect(ui->menu_url_test, &QAction::triggered, this, [=]() { speedtest_current_group(1, false); });
+    connect(ui->menu_full_test, &QAction::triggered, this, [=]() { speedtest_current_group(2, false); });
+    connect(ui->menu_stop_testing, &QAction::triggered, this, [=]() { speedtest_current_group(114514, false); });
     //
     auto set_selected_or_group = [=](int mode) {
         // 0=group 1=select 2=unknown(menu is hide)
@@ -398,10 +388,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     if (NekoGui::dataStore->core_port <= 0) NekoGui::dataStore->core_port = 19810;
 
     auto core_path = QApplication::applicationDirPath() + "/";
-    core_path += IS_NEKO_BOX ? "nekobox_core" : "nekoray_core";
+    core_path += "nekobox_core";
 
     QStringList args;
-    args.push_back(IS_NEKO_BOX ? "nekobox" : "nekoray");
+    args.push_back("nekobox");
     args.push_back("-port");
     args.push_back(Int2String(NekoGui::dataStore->core_port));
     if (NekoGui::dataStore->flag_debug) args.push_back("-debug");
@@ -488,7 +478,7 @@ void MainWindow::show_group(int gid) {
 
     auto group = NekoGui::profileManager->GetGroup(gid);
     if (group == nullptr) {
-        MessageBoxWarning(tr("Error"), QString("No such group: %1").arg(gid));
+        MessageBoxWarning(tr("Error"), QStringLiteral("No such group: %1").arg(gid));
         NekoGui::dataStore->refreshing_group = false;
         return;
     }
@@ -639,7 +629,7 @@ void MainWindow::on_commitDataRequest() {
     //
     if (!isMaximized()) {
         auto olds = NekoGui::dataStore->mw_size;
-        auto news = QString("%1x%2").arg(size().width()).arg(size().height());
+        auto news = QStringLiteral("%1x%2").arg(size().width()).arg(size().height());
         if (olds != news) {
             NekoGui::dataStore->mw_size = news;
         }
@@ -726,20 +716,8 @@ void MainWindow::on_menu_exit_triggered() {
 void MainWindow::neko_set_spmode_system_proxy(bool enable, bool save) {
     if (enable != NekoGui::dataStore->spmode_system_proxy) {
         if (enable) {
-#if defined(Q_OS_WIN)
-            if (!IS_NEKO_BOX && !IsValidPort(NekoGui::dataStore->inbound_http_port)) {
-                auto btn = QMessageBox::warning(this, software_name,
-                                                tr("Http inbound is not enabled, can't set system proxy."),
-                                                "OK", tr("Settings"), "", 0, 0);
-                if (btn == 1) {
-                    on_menu_basic_settings_triggered();
-                }
-                return;
-            }
-#endif
             auto socks_port = NekoGui::dataStore->inbound_socks_port;
-            auto http_port = NekoGui::dataStore->inbound_http_port;
-            if (IS_NEKO_BOX) http_port = socks_port;
+            auto http_port = NekoGui::dataStore->inbound_socks_port;
             SetSystemProxy(http_port, socks_port);
         } else {
             ClearSystemProxy();
@@ -761,7 +739,7 @@ void MainWindow::neko_set_spmode_system_proxy(bool enable, bool save) {
 void MainWindow::neko_set_spmode_vpn(bool enable, bool save) {
     if (enable != NekoGui::dataStore->spmode_vpn) {
         if (enable) {
-            if (IS_NEKO_BOX_INTERNAL_TUN) {
+            if (NekoGui::dataStore->vpn_internal_tun) {
                 bool requestPermission = !NekoGui::IsAdmin();
                 if (requestPermission) {
 #ifdef Q_OS_LINUX
@@ -799,7 +777,7 @@ void MainWindow::neko_set_spmode_vpn(bool enable, bool save) {
                 }
             }
         } else {
-            if (IS_NEKO_BOX_INTERNAL_TUN) {
+            if (NekoGui::dataStore->vpn_internal_tun) {
                 // current core is sing-box
             } else {
                 if (!StopVPNProcess()) {
@@ -820,7 +798,7 @@ void MainWindow::neko_set_spmode_vpn(bool enable, bool save) {
     NekoGui::dataStore->spmode_vpn = enable;
     refresh_status();
 
-    if (IS_NEKO_BOX_INTERNAL_TUN && NekoGui::dataStore->started_id >= 0) neko_start(NekoGui::dataStore->started_id);
+    if (NekoGui::dataStore->vpn_internal_tun && NekoGui::dataStore->started_id >= 0) neko_start(NekoGui::dataStore->started_id);
 }
 
 void MainWindow::refresh_status(const QString &traffic_update) {
@@ -854,17 +832,12 @@ void MainWindow::refresh_status(const QString &traffic_update) {
 
     if (last_test_time.addSecs(2) < QTime::currentTime()) {
         auto txt = running == nullptr ? tr("Not Running")
-                                      : QString("[%1] %2").arg(group_name, running->bean->DisplayName()).left(30);
+                                      : QStringLiteral("[%1] %2").arg(group_name, running->bean->DisplayName()).left(30);
         ui->label_running->setText(txt);
     }
     //
-    auto display_http = tr("None");
-    if (IsValidPort(NekoGui::dataStore->inbound_http_port)) {
-        display_http = DisplayAddress(NekoGui::dataStore->inbound_address, NekoGui::dataStore->inbound_http_port);
-    }
     auto display_socks = DisplayAddress(NekoGui::dataStore->inbound_address, NekoGui::dataStore->inbound_socks_port);
-    auto inbound_txt = QString("Socks: %1\nHTTP: %2").arg(display_socks, display_http);
-    if (IS_NEKO_BOX) inbound_txt = QString("Mixed: %1").arg(display_socks);
+    auto inbound_txt = QStringLiteral("Mixed: %1").arg(display_socks);
     ui->label_inbound->setText(inbound_txt);
     //
     ui->checkBox_VPN->setChecked(NekoGui::dataStore->spmode_vpn);
@@ -1194,7 +1167,7 @@ void MainWindow::on_menu_profile_debug_info_triggered() {
     if (ents.count() != 1) return;
     auto btn = QMessageBox::information(this, software_name, ents.first()->ToJsonBytes(), "OK", "Edit", "Reload", 0, 0);
     if (btn == 1) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(QString("profiles/%1.json").arg(ents.first()->id)).absoluteFilePath()));
+        QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(QStringLiteral("profiles/%1.json").arg(ents.first()->id)).absoluteFilePath()));
     } else if (btn == 2) {
         NekoGui::dataStore->Load();
         NekoGui::profileManager->LoadManager();
@@ -1235,23 +1208,23 @@ void MainWindow::on_menu_export_config_triggered() {
     if (ent->bean->DisplayCoreType() != software_core_name) return;
 
     auto result = BuildConfig(ent, false, true);
-    QString config_core = QJsonObject2QString(result->coreConfig, true);
+    QString config_core = QJsonObject2QString(result->coreConfig, false);
     QApplication::clipboard()->setText(config_core);
 
-    QMessageBox msg(QMessageBox::Information, tr("Config copied"), config_core);
+    QMessageBox msg(QMessageBox::Information, tr("Config copied"), tr("Config copied"));
     msg.addButton("Copy core config", QMessageBox::YesRole);
-    msg.addButton("Copy test config", QMessageBox::YesRole);
+    msg.addButton("Copy test config", QMessageBox::NoRole);
     msg.addButton(QMessageBox::Ok);
     msg.setEscapeButton(QMessageBox::Ok);
     msg.setDefaultButton(QMessageBox::Ok);
     auto ret = msg.exec();
-    if (ret == 0) {
+    if (ret == 2) {
         result = BuildConfig(ent, false, false);
-        config_core = QJsonObject2QString(result->coreConfig, true);
+        config_core = QJsonObject2QString(result->coreConfig, false);
         QApplication::clipboard()->setText(config_core);
-    } else if (ret == 1) {
+    } else if (ret == 3) {
         result = BuildConfig(ent, true, false);
-        config_core = QJsonObject2QString(result->coreConfig, true);
+        config_core = QJsonObject2QString(result->coreConfig, false);
         QApplication::clipboard()->setText(config_core);
     }
 }
@@ -1802,9 +1775,8 @@ bool MainWindow::StartVPNProcess() {
         return true;
     }
     //
-    auto protectPath = QDir::currentPath() + "/protect";
     auto configPath = NekoGui::WriteVPNSingBoxConfig();
-    auto scriptPath = NekoGui::WriteVPNLinuxScript(protectPath, configPath);
+    auto scriptPath = NekoGui::WriteVPNLinuxScript(configPath);
     //
 #ifdef Q_OS_WIN
     runOnNewThread([=] {
@@ -1816,11 +1788,6 @@ bool MainWindow::StartVPNProcess() {
         runOnUiThread([=] { neko_set_spmode_vpn(false); });
     });
 #else
-    QFile::remove(protectPath);
-    if (QFile::exists(protectPath)) {
-        MessageBoxWarning("Error", "protect cannot be removed");
-        return false;
-    }
     //
     auto vpn_process = new QProcess;
     QProcess::connect(vpn_process, &QProcess::stateChanged, this, [=](QProcess::ProcessState state) {
@@ -1833,7 +1800,7 @@ bool MainWindow::StartVPNProcess() {
     //
     vpn_process->setProcessChannelMode(QProcess::ForwardedChannels);
 #ifdef Q_OS_MACOS
-    vpn_process->start("osascript", {"-e", QString("do shell script \"%1\" with administrator privileges")
+    vpn_process->start("osascript", {"-e", QStringLiteral("do shell script \"%1\" with administrator privileges")
                                                .arg("bash " + scriptPath)});
 #else
     vpn_process->start("pkexec", {"bash", scriptPath});
@@ -1856,7 +1823,7 @@ bool MainWindow::StopVPNProcess(bool unconditional) {
 #else
         QProcess p;
 #ifdef Q_OS_MACOS
-        p.start("osascript", {"-e", QString("do shell script \"%1\" with administrator privileges")
+        p.start("osascript", {"-e", QStringLiteral("do shell script \"%1\" with administrator privileges")
                                         .arg("pkill -2 -U 0 nekobox_core")});
 #else
         if (unconditional) {

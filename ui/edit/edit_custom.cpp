@@ -40,7 +40,6 @@ void EditCustom::onStart(std::shared_ptr<NekoGui::ProxyEntity> _ent) {
     // load known core
     auto core_map = QString2QJsonObject(NekoGui::dataStore->extraCore->core_map);
     for (const auto &key: core_map.keys()) {
-        if (key == "naive" || key == "hysteria") continue;
         ui->core->addItem(key);
     }
     if (preset_core == "internal") {
@@ -119,7 +118,7 @@ void EditCustom::onStart(std::shared_ptr<NekoGui::ProxyEntity> _ent) {
             auto command = QStringList{extR->program};
             command += extR->arguments;
             auto btn = QMessageBox::information(this, tr("Preview config"),
-                                                QString("Command: %1\n\n%2").arg(QStringList2Command(command), extR->config_export),
+                                                QStringLiteral("Command: %1\n\n%2").arg(QStringList2Command(command), extR->config_export),
                                                 "OK", "Copy", "", 0, 0);
             if (btn == 1) {
                 QApplication::clipboard()->setText(extR->config_export);
